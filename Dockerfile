@@ -30,4 +30,5 @@ USER appuser
 EXPOSE 10000
 
 # FIX: port matches Render's expected port
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
+EXPOSE 7860
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
