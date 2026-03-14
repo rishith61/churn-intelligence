@@ -190,11 +190,11 @@ docker run -p 10000:10000 churn-intelligence
 
 ## Roadmap
 
+- [ ] Focus on generating an explanation using LLM and SHAP
 - [ ] Probability calibration — `CalibratedClassifierCV` (isotonic) + threshold validation
 - [ ] Unit tests for feature engineering, schema validation, and inference
 - [ ] Cross-validation instead of single train/test split
 - [ ] CI/CD — GitHub Actions to run tests on every push
-- [ ] Model registry — track experiments with MLflow or similar
 
 ---
 
