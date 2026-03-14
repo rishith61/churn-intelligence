@@ -598,9 +598,55 @@
           transform: rotate(360deg);
         }
       }
+      /* ── Wake-up banner ── */
+      #wake-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(232, 255, 71, 0.08);
+        border-bottom: 1px solid rgba(232, 255, 71, 0.2);
+        color: var(--accent);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-align: center;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        backdrop-filter: blur(8px);
+      }
+
+      #wake-banner .spinner-inline {
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(232, 255, 71, 0.3);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        flex-shrink: 0;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      body.banner-visible {
+        padding-top: 40px;
+      }
     </style>
   </head>
-  <body>
+  <body class="banner-visible">
+    <!-- Wake-up banner: auto-hides once server is ready -->
+    <div id="wake-banner">
+      <div class="spinner-inline"></div>
+      The server might take a moment to start up — please hang tight!
+    </div>
+
     <div class="container">
       <header>
         <h1>Churn <span>Intelligence</span></h1>
@@ -1284,6 +1330,28 @@
         a.click();
         URL.revokeObjectURL(url);
       }
+
+      // ── Wake-up banner: poll /health until server is ready ──────────
+      (function checkServerReady() {
+        const banner = document.getElementById("wake-banner");
+        const poll = () => {
+          fetch("/health")
+            .then((res) => {
+              if (res.ok) {
+                banner.style.transition = "opacity 0.5s ease";
+                banner.style.opacity = "0";
+                setTimeout(() => {
+                  banner.remove();
+                  document.body.classList.remove("banner-visible");
+                }, 500);
+              } else {
+                setTimeout(poll, 3000);
+              }
+            })
+            .catch(() => setTimeout(poll, 3000));
+        };
+        poll();
+      })();
 
       //Helpers
       function setLoading(panel, on) {
