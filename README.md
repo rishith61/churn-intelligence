@@ -8,7 +8,7 @@
 
 A production-ready telco customer churn prediction system built with XGBoost and FastAPI — deployed via Docker on Render.
 
-🔗 **Live Demo:** `https://your-app.onrender.com` <!-- replace with your Render URL after deploying -->
+🔗 **Live Demo:** https://churn-intelligence-bzs3.onrender.com/
 
 ---
 
