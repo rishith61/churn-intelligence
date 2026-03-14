@@ -1,3 +1,12 @@
+---
+title: Churn Intelligence
+emoji: 📊
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # Churn Intelligence
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
@@ -20,14 +29,14 @@ Predicts the probability that a telecom customer will churn, assigns a risk tier
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Model | XGBoost + SMOTE (imbalanced-learn) |
-| API | FastAPI + Pydantic v2 |
-| Serving | Uvicorn |
-| Frontend | Vanilla HTML/CSS/JS |
-| Containerisation | Docker |
-| Deployment | Render |
+| Layer            | Technology                         |
+| ---------------- | ---------------------------------- |
+| Model            | XGBoost + SMOTE (imbalanced-learn) |
+| API              | FastAPI + Pydantic v2              |
+| Serving          | Uvicorn                            |
+| Frontend         | Vanilla HTML/CSS/JS                |
+| Containerisation | Docker                             |
+| Deployment       | Render                             |
 
 ---
 
@@ -60,12 +69,12 @@ churn/
 
 ## API endpoints
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/` | Dashboard UI |
-| GET | `/health` | Model readiness check |
-| POST | `/predict/single` | Single customer prediction (JSON) |
-| POST | `/predict/batch` | Batch prediction (CSV / Excel upload) |
+| Method | Endpoint          | Description                           |
+| ------ | ----------------- | ------------------------------------- |
+| GET    | `/`               | Dashboard UI                          |
+| GET    | `/health`         | Model readiness check                 |
+| POST   | `/predict/single` | Single customer prediction (JSON)     |
+| POST   | `/predict/batch`  | Batch prediction (CSV / Excel upload) |
 
 Full interactive docs available at `/docs` once running.
 
@@ -111,7 +120,7 @@ The model was performing too well on training data relative to validation. I add
 
 **3. Feature correlation (`TotalCharges` vs `tenure`)**
 
-These two features had a 0.83 correlation — high enough to cause redundancy. I decided to drop `TotalCharges` and keep `tenure` and `MonthlyCharges` instead. The intuition: tenure tells you *how long* a customer has stayed, monthly charges tells you *how much* they pay — together they capture the signal that `TotalCharges` carried, without the redundancy.
+These two features had a 0.83 correlation — high enough to cause redundancy. I decided to drop `TotalCharges` and keep `tenure` and `MonthlyCharges` instead. The intuition: tenure tells you _how long_ a customer has stayed, monthly charges tells you _how much_ they pay — together they capture the signal that `TotalCharges` carried, without the redundancy.
 
 **4. Data preprocessing**
 
@@ -120,6 +129,7 @@ The dataset had mixed data types (numerical, binary yes/no columns, and multi-ca
 ---
 
 ### Churn distribution
+
 ![Churn Distribution](assets/01_churn_distribution.png)
 
 The dataset is imbalanced — 73.5% of customers did not churn vs 26.5% who did (5,174 vs 1,869 customers). This imbalance is the reason SMOTE was applied during training to prevent the model from being biased towards predicting "No Churn" for every customer.
@@ -127,9 +137,11 @@ The dataset is imbalanced — 73.5% of customers did not churn vs 26.5% who did 
 ---
 
 ### Numerical feature distributions
+
 ![Numerical Feature Distributions](assets/02_numerical_distributions.png)
 
 Three clear patterns emerge:
+
 - **Tenure** — churned customers are heavily concentrated in the first few months. Long-tenure customers rarely churn.
 - **MonthlyCharges** — churned customers skew towards higher monthly bills ($60–$100 range).
 - **TotalCharges** — churned customers have low total charges, consistent with them leaving early.
@@ -137,6 +149,7 @@ Three clear patterns emerge:
 ---
 
 ### Correlation heatmap
+
 ![Correlation Heatmap](assets/04_correlation_heatmap.png)
 
 `TotalCharges` and `tenure` are strongly correlated (0.83) — expected, since total charges accumulate over time. This informed the `avg_monthly_spend` engineered feature (`TotalCharges / (tenure + 1)`), which captures spending rate independently of how long a customer has been with the company.
@@ -154,33 +167,39 @@ Three clear patterns emerge:
 ## How to run locally
 
 **1. Clone the repo:**
+
 ```bash
 git clone https://github.com/your-username/churn-intelligence.git
 cd churn-intelligence
 ```
 
 **2. Install dependencies:**
+
 ```bash
 pip install -e .
 pip install -r requirements.txt
 ```
 
 **3. Train the model:**
+
 ```bash
 python train.py
 ```
 
 **4. Start the server:**
+
 ```bash
 uvicorn app.main:app --reload
 ```
 
 **5. Open the dashboard:**
+
 ```
 http://localhost:8000
 ```
 
 **Or with Docker:**
+
 ```bash
 docker build -t churn-intelligence .
 docker run -p 10000:10000 churn-intelligence
