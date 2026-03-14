@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+test_env/
+env/
+
+# Development & training artifacts
+notebooks/
+eda_plots/
+app/train.py
+WA_Fn-UseC_-Telco-Customer-Churn.csv
+
+# Environment & secrets
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# Docs & misc
+README.md
+*.md
