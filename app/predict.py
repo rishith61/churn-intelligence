@@ -209,10 +209,10 @@ def predict_churn(customer_data: pd.DataFrame) -> dict:
     Returns
     -------
     {
-        "churn_probability":  73.4,                                    ← 0–100 float
-        "churn_risk":         "High",                                  ← "Low" | "Medium" | "High"
-        "churn_risk_score":   7,                                       ← 1–10 integer
-        "recommended_action": "Offer personalised retention discount"  ← plain-English next step
+        "churn_probability":  73.4,                                    -> 0-100 float
+        "churn_risk":         "High",                                  -> "Low" | "Medium" | "High"
+        "churn_risk_score":   7,                                        -> 1-10 integer
+        "recommended_action": "Offer personalised retention discount"   -> plain-English next step
     }
     """
     if len(customer_data) != 1:
