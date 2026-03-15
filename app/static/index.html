@@ -1122,6 +1122,14 @@
           return;
         }
 
+        if (mc > 200) {
+          showError(
+            "single-error",
+            "Monthly Charges cannot exceed $200 — this model is trained on commercial telco pricing which stays within this range.",
+          );
+          return;
+        }
+
         const payload = {
           tenure,
           MonthlyCharges: mc,
