@@ -1082,12 +1082,6 @@
         }
       }
 
-      function capMonthlyCharges(el) {
-        if (parseFloat(el.value) > 200) {
-          el.value = 200;
-        }
-      }
-
       document
         .getElementById("tenure")
         .addEventListener("input", autoCalcTotalCharges);
