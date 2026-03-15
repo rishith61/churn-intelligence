@@ -95,7 +95,10 @@ class CustomerInput(BaseModel):
     # ── Numeric (required) ────────────────────────────────────────────────────
     tenure: int = Field(..., ge=0, le=100, description="Months as customer (0–100)")
     MonthlyCharges: float = Field(
-        ..., gt=0, le=200.0, description="Current monthly bill ($)"
+        ...,
+        gt=0,
+        le=200.0,
+        description="Current monthly bill ($) — capped at $200. Values above this are uncommon in commercial telco pricing.($)",
     )
     TotalCharges: float = Field(..., ge=0, description="Cumulative charges ($)")
 
