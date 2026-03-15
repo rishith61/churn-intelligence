@@ -9,7 +9,7 @@
 A production-ready telco customer churn prediction system built with XGBoost and FastAPI — deployed via Docker on Hugging Face Spaces.
 
 🔗 **Live Demo:** https://huggingface.co/spaces/Rishith-369/churn-intelligence
-
+> The demo is hosted on Hugging Face Spaces free tier — it may take 30–60 seconds to wake up if it hasn't been visited recently.
 ---
 
 ## What it does
@@ -85,7 +85,7 @@ Full interactive docs available at `/docs` once running.
 
 ## Model results
 
-> Accuracy alone is misleading on imbalanced data — a model that predicts "No Churn" for every customer gets 73% accuracy while being completely useless. The metrics that matter are **Recall** (how many actual churners did we catch?) and **Precision** (how many false alarms did we raise?).
+Accuracy alone is misleading on imbalanced data — a model that predicts "No Churn" for every customer gets 73% accuracy while being completely useless. The metrics that matter are **Recall** (how many actual churners did we catch?) and **Precision** (how many false alarms did we raise?).
 
 | Class | Precision | Recall | F1-score | Support |
 |---|---|---|---|---|
@@ -106,12 +106,18 @@ This section documents what I learned, the problems I ran into, and the decision
 ### What I learned
 
 - **ML pipelines with scikit-learn** — building separate preprocessing pipelines for numerical, binary, and categorical features and chaining them with the model into a single `.joblib` artifact. This made inference clean and consistent with training.
+  
 - **Handling class imbalance with SMOTE** — the dataset had a 73/27 churn split. I learned that SMOTE must only be applied inside training folds, not on the full dataset before splitting, to avoid data leakage.
+  
 - **Feature engineering** — derived four new features (`avg_monthly_spend`, `is_new_customer`, `is_high_value`, `has_support_services`) from the raw columns. This was my first time deliberately engineering features rather than just feeding raw data to the model.
+  
 - **Building REST APIs with FastAPI** — learned how to structure endpoints, validate request payloads with Pydantic, and handle both single and batch prediction flows.
 - **Logging** — added logging throughout the API: when the model loads at startup, when a prediction request comes in, what HTTP method and endpoint was hit, and when errors occur. This was genuinely useful during development — without it I had no idea what was happening inside the container.
+  
 - **Docker & containerisation** — wrote a Dockerfile from scratch, understood the difference between build-time and runtime, and learned how to expose and map ports correctly. Docker ensures the FastAPI environment, XGBoost dependencies, and model artifact remain identical between local development and production — no "works on my machine" surprises.
+  
 - **Batch error handling** — the batch endpoint validates the entire DataFrame schema upfront before running any inference. If required columns are missing, the whole request fails fast with a clear error message rather than processing partial rows silently. A row-level partial success pattern is on the roadmap.
+  
 - **Deploying on Hugging Face Spaces** — connected the GitHub repo, configured Git LFS for binary files (model artifact + assets), and deployed via Docker. First time deploying an ML model as a live API.
 
 ---
@@ -200,7 +206,7 @@ http://localhost:8000
 **Or with Docker:**
 ```bash
 docker build -t churn-intelligence .
-docker run -p 10000:10000 churn-intelligence
+docker run -p 7860:7860 churn-intelligence
 ```
 
 ---
