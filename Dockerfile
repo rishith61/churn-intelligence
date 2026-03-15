@@ -26,9 +26,6 @@ RUN adduser --disabled-password --gecos "" appuser \
     && chown -R appuser:appuser /code
 USER appuser
 
-# FIX: Render uses port 10000, not 8000
-EXPOSE 10000
-
 # FIX: port matches Render's expected port
 EXPOSE 7860
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

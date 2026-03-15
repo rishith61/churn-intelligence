@@ -61,7 +61,6 @@ REQUIRED_COLUMNS = {
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # RISK HELPERS
 # probability  → risk label, risk score (1–10), recommended action
 #
@@ -71,7 +70,6 @@ REQUIRED_COLUMNS = {
 #   > 60%  → High   score 7–10  immediate intervention
 #
 # Adjust thresholds after reviewing precision/recall tradeoffs on your data.
-# ══════════════════════════════════════════════════════════════════════════════
 
 
 def _get_risk_label(probability: float):
@@ -104,9 +102,7 @@ def _get_recommended_action(probability: float):
         return "Standard engagement , monitor next billing cycle"
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # LAZY MODEL LOADER
-# ══════════════════════════════════════════════════════════════════════════════
 
 # Initally model is not loaded and so we avoid wasting time by loading it only when needed.
 # This is called lazy loading.
@@ -139,9 +135,7 @@ def _get_artifacts() -> dict:
     return _artifacts
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # SCHEMA VALIDATION
-# ══════════════════════════════════════════════════════════════════════════════
 
 
 def _validate_schema(df: pd.DataFrame, context: str = "input"):
@@ -159,9 +153,7 @@ def _validate_schema(df: pd.DataFrame, context: str = "input"):
         )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # CORE INFERENCE
-# ══════════════════════════════════════════════════════════════════════════════
 
 
 def _run_inference(df: pd.DataFrame) -> pd.DataFrame:
@@ -206,9 +198,7 @@ def _run_inference(df: pd.DataFrame) -> pd.DataFrame:
     return results
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # PUBLIC API
-# ══════════════════════════════════════════════════════════════════════════════
 
 
 def predict_churn(customer_data: pd.DataFrame) -> dict:
@@ -304,7 +294,7 @@ def predict_batch(file_path: str, output_path: str | None = None) -> pd.DataFram
     # Run inference via the DataFrame path — no duplication of logic
     results = predict_batch_df(df)
 
-    # ── Save to outputs/ ──────────────────────────────────────────────────────
+    # Save to outputs/
     if output_path is None:
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         base = os.path.splitext(os.path.basename(file_path))[0]

@@ -1,15 +1,12 @@
 """
 main.py — Churn Intelligence · FastAPI Application
-====================================================
+
 Endpoints:
   GET  /              → API info
   GET  /health        → model readiness check
   POST /predict/single → single customer prediction (JSON body)
   POST /predict/batch  → batch prediction (CSV / Excel upload)
 """
-
-from __future__ import annotations
-
 
 import io
 import logging
@@ -29,7 +26,7 @@ ALLOWED_MIME_TYPES = {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 }
 
-# ── Internal imports ──────────────────────────────────────────────────────────
+# Internal imports
 # All inference goes through predict.py — single source of truth.
 # main.py never touches the pipeline, le, or engineer_features directly.
 
@@ -37,12 +34,10 @@ ALLOWED_MIME_TYPES = {
 log = logging.getLogger(__name__)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # LIFESPAN — model loaded once on startup, not at module level
 # This is the FastAPI-native replacement for putting joblib.load() at the top.
 # If the model file is missing, the server logs a clear error on boot and the
 # /health endpoint reports it — the server does NOT crash silently.
-# ══════════════════════════════════════════════════════════════════════════════
 
 _model_ready = False
 
@@ -76,13 +71,11 @@ if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # REQUEST / RESPONSE SCHEMAS
 # Defining these explicitly does three things:
 #   1. FastAPI auto-generates accurate Swagger docs at /docs
 #   2. Pydantic validates and rejects bad input before it hits the model
 #   3. Your frontend team knows exactly what to send and what to expect
-# ══════════════════════════════════════════════════════════════════════════════
 
 
 class CustomerInput(BaseModel):
@@ -92,7 +85,7 @@ class CustomerInput(BaseModel):
     because the model cannot run without them.
     """
 
-    # ── Numeric (required) ────────────────────────────────────────────────────
+    # Numeric (required)
     tenure: int = Field(..., ge=0, le=100, description="Months as customer (0–100)")
     MonthlyCharges: float = Field(
         ...,
@@ -102,7 +95,7 @@ class CustomerInput(BaseModel):
     )
     TotalCharges: float = Field(..., ge=0, description="Cumulative charges ($)")
 
-    # ── Demographics ──────────────────────────────────────────────────────────
+    # Demographics
     gender: str = Field(..., pattern="^(Male|Female)$")
     SeniorCitizen: int = Field(
         ..., ge=0, le=1, description="1 = senior citizen, 0 = not"
@@ -110,7 +103,7 @@ class CustomerInput(BaseModel):
     Partner: str = Field(..., pattern="^(Yes|No)$")
     Dependents: str = Field(..., pattern="^(Yes|No)$")
 
-    # ── Services (required — used in has_support_services feature) ────────────
+    # Services (required — used in has_support_services feature)
     PhoneService: str = Field(..., pattern="^(Yes|No)$")
     MultipleLines: str = Field(..., pattern="^(Yes|No|No phone service)$")
     InternetService: str = Field(..., pattern="^(DSL|Fiber optic|No)$")
@@ -121,7 +114,7 @@ class CustomerInput(BaseModel):
     StreamingTV: str = Field(..., pattern="^(Yes|No|No internet service)$")
     StreamingMovies: str = Field(..., pattern="^(Yes|No|No internet service)$")
 
-    # ── Contract & billing ────────────────────────────────────────────────────
+    # Contract & billing
     Contract: str = Field(..., pattern="^(Month-to-month|One year|Two year)$")
     PaperlessBilling: str = Field(..., pattern="^(Yes|No)$")
     PaymentMethod: str = Field(
@@ -161,9 +154,7 @@ class BatchSummaryResponse(BaseModel):
     avg_churn_probability: float
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # ROUTES
-# ══════════════════════════════════════════════════════════════════════════════
 
 
 @app.get("/", tags=["Info"], include_in_schema=False)
@@ -180,7 +171,7 @@ def health():
     """
     Real health check — verifies the model is loaded and ready.
     Returns 503 if the model failed to load on startup.
-    Your frontend / load balancer should poll this before sending predictions.
+    The frontend / load balancer should poll this before sending predictions.
     """
     if not _model_ready:
         raise HTTPException(
@@ -228,7 +219,7 @@ async def predict_batch_endpoint(file: UploadFile = File(...)):
       X-Total-Customers, X-High-Risk, X-Medium-Risk, X-Low-Risk
     so the frontend can show a summary card without parsing the CSV.
     """
-    # ── Validate file type ────────────────────────────────────────────────────
+    # Validate file type
     filename = file.filename or ""
     if not filename.endswith((".csv", ".xlsx", ".xls")):
         raise HTTPException(
@@ -242,7 +233,7 @@ async def predict_batch_endpoint(file: UploadFile = File(...)):
             detail=f"Unexpected content type '{file.content_type}'. Upload a valid CSV or Excel file.",
         )
 
-    # ── Read uploaded bytes into DataFrame ────────────────────────────────────
+    # Read uploaded bytes into DataFrame
     contents = await file.read()
     try:
         if filename.endswith(".csv"):
@@ -255,7 +246,7 @@ async def predict_batch_endpoint(file: UploadFile = File(...)):
     if df.empty:
         raise HTTPException(status_code=400, detail="Uploaded file contains no rows.")
 
-    # ── Run inference directly from DataFrame — no disk I/O needed ───────────
+    #  Run inference directly from DataFrame — no disk I/O needed
     try:
         results = predict_batch_df(df)
     except ValueError as e:
@@ -263,7 +254,7 @@ async def predict_batch_endpoint(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    # ── Build summary ─────────────────────────────────────────────────────────
+    #  Build summary
     risk_counts = results["churn_risk"].value_counts()
     summary = {
         "total_customers": len(results),
@@ -273,7 +264,7 @@ async def predict_batch_endpoint(file: UploadFile = File(...)):
         "avg_churn_probability": round(float(results["churn_probability"].mean()), 1),
     }
 
-    # ── Stream results CSV back to client ─────────────────────────────────────
+    #  Stream results CSV back to client
     output = io.StringIO()
     results.to_csv(output, index=False)
     output.seek(0)
