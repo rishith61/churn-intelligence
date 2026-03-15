@@ -79,7 +79,7 @@ Full interactive docs available at `/docs` once running.
 - **Preprocessing:** Separate pipelines for numerical (impute + scale), binary (ordinal encode), and multi-category (one-hot encode) columns
 - **Artifact:** Versioned with training timestamp, dataset hash, and test metrics — no silent model drift
 
-> **Note:** Probability calibration (`CalibratedClassifierCV`) is on the roadmap. Current risk thresholds (30% / 60%) are applied to raw XGBoost probabilities.
+**Note:** Probability calibration (`CalibratedClassifierCV`) is on the roadmap. Current risk thresholds (30% / 60%) are applied to raw XGBoost probabilities.
 
 ---
 
